@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sactorinni — Loja</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Poppins',sans-serif;background:#fff;color:#111;}
+    header{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);position:sticky;top:0;background:#fff;z-index:50}
+    .logo{font-weight:900;font-size:22px;letter-spacing:2px;color:#111}
+    nav{display:flex;gap:24px}
+    nav a{color:#111;text-decoration:none;font-weight:600;transition:color .2s}
+    nav a:hover{color:#e63946}
+    .actions{display:flex;gap:16px;align-items:center}
+    .search{display:flex;align-items:center;background:#f2f2f2;border-radius:24px;padding:6px 12px}
+    .search input{border:none;background:transparent;outline:none;padding:4px;width:200px}
+
+    .hero{position:relative;width:100%;height:60vh;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:40px}
+    .hero img{width:100%;height:100%;object-fit:cover;filter:brightness(0.75)}
+    .hero-text{position:absolute;color:#fff;text-align:center}
+    .hero-text h1{font-size:52px;font-weight:900;margin-bottom:12px}
+    .hero-text p{font-size:18px;margin-bottom:20px}
+    .hero-text .btn{background:#e63946;color:#fff;padding:14px 26px;border-radius:30px;font-weight:600;}
+
+    main{padding:40px 60px}
+    h2.section-title{font-size:28px;font-weight:700;margin-bottom:24px;text-transform:uppercase}
+
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+    .product{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.08);display:flex;flex-direction:column;transition:transform .2s}
+    .product:hover{transform:translateY(-4px)}
+    .product img{width:100%;height:220px;object-fit:cover}
+    .product-info{padding:16px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+    .product-info h3{font-size:18px;font-weight:600;margin-bottom:8px}
+    .price{font-size:16px;font-weight:700;color:#e63946;margin-bottom:12px}
+    .btn{padding:10px 18px;border-radius:24px;cursor:pointer;text-align:center;display:inline-block;border:none}
+    .btn-primary{background:#111;color:#fff;font-weight:600}
+    .btn-secondary{background:#fff;color:#111;border:1px solid #ddd;font-weight:500}
+
+    footer{background:#111;color:#fff;padding:40px 60px;margin-top:60px}
+    footer h3{font-size:20px;font-weight:700;margin-bottom:16px}
+    footer textarea{width:100%;padding:12px;border-radius:8px;border:none;resize:vertical;min-height:80px;font-family:'Poppins'}
+    footer p{margin-top:16px;font-size:13px;color:#ccc}
+
+    /* Overlay/modal */
+    .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:100}
+    .modal{background:#fff;border-radius:12px;max-width:500px;width:90%;padding:24px;max-height:90vh;overflow:auto}
+    label{font-size:14px;margin:6px 0;display:block}
+    input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px}
+
+    @media(max-width:768px){
+      .hero-text h1{font-size:36px}
+      main{padding:20px}
+      footer{padding:20px}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SACTORINNI</div>
+  <nav>
+    <a href="#" onclick="openCategory('Casual')">Casual</a>
+    <a href="#" onclick="openCategory('Esporte')">Esporte</a>
+    <a href="#" onclick="openCategory('Masculino')">Masculino</a>
+    <a href="#" onclick="openCategory('Feminino')">Feminino</a>
+  </nav>
+  <div class="actions">
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Buscar" oninput="renderProducts()">
+    </div>
+    <a href="#" onclick="openGuide()">Guia</a>
+    <a href="#" onclick="openAccount()">Conta</a>
+  </div>
+</header>
+
+<section class="hero">
+  <img src="banner 01.png" alt="banner">
+  <div class="hero-text">
+    <h1>Nova Coleção</h1>
+    <p>Estilo, conforto e exclusividade</p>
+    <a class="btn btn-primary" href="#produtos">Ver Produtos</a>
+  </div>
+</section>
+
+<main>
+  <h2 class="section-title">Destaques</h2>
+  <div class="products" id="productsList"></div>
+</main>
+
+<footer>
+  <h3>Sobre a Sactorinni</h3>
+  <textarea placeholder="Digite aqui informações sobre a marca..."></textarea>
+  <p>© 2025 Sactorinni - Todos os direitos reservados.</p>
+</footer>
+
+<div id="overlay" class="overlay"><div class="modal" id="modalContent"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  let companyEmail = 'matheusenzo.10@gmail.com';
+
+let emailjs_service = 'service_alooepf';   // Seu Service ID
+let emailjs_template = 'template_zbbkyft'; // Seu Template ID
+let emailjs_public  = 'Icf4WiHcjRdC3n0aK';    // Sua Public Key
+
+
+  const products=[
+    {id:'TN001',title:'Tênis Branco Casual',price:299.90,image:'tenis1.jpg'},
+    {id:'TN002',title:'Tênis Preto Esportivo',price:349.90,image:'tenis2.jpg'},
+    {id:'TN003',title:'Tênis de Corrida',price:399.90,image:'tenis3.jpg'},
+    {id:'TN004',title:'Tênis Clássico',price:269.90,image:'tenis4.jpg'}
+  ];
+
+  function renderProducts(){
+    const q=document.getElementById('searchInput').value.toLowerCase();
+    const c=document.getElementById('productsList');
+    c.innerHTML='';
+    products.filter(p=>p.title.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)).forEach(p=>{
+      c.innerHTML+=`
+        <div class='product'>
+          <img src='${p.image}' alt='${p.title}'>
+          <div class='product-info'>
+            <h3>${p.title}</h3>
+            <div class='price'>R$ ${p.price.toFixed(2)}</div>
+            <button class='btn btn-primary' onclick='openBuy("${p.id}")'>Comprar</button>
+          </div>
+        </div>`;
+    });
+  }
+  renderProducts();
+
+  function showModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('overlay').style.display='flex'}
+  function closeModal(){document.getElementById('overlay').style.display='none'}
+  document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal()});
+
+  function openCategory(name){showModal(`<h3>${name}</h3><p>Categoria em breve...</p><button class='btn btn-secondary' onclick='closeModal()'>Fechar</button>`)}
+  function openGuide(){showModal(`<h3>Guia</h3><p>Use buscar ou navegue pelas categorias. Clique em comprar para simular um pedido.</p><button class='btn btn-secondary' onclick='closeModal()'>Fechar</button>`)}
+  function openAccount(){showModal(`<h3>Conta</h3><p>Área de login em breve...</p><button class='btn btn-secondary' onclick='closeModal()'>Fechar</button>`)}
+
+  function openBuy(id){
+    const p=products.find(x=>x.id===id);
+    showModal(`
+      <h3>Checkout — ${p.title}</h3>
+      <form id='checkoutForm'>
+        <input type='hidden' name='productId' value='${p.id}'>
+        <label>Nome</label><input type='text' name='name' required>
+        <label>Email</label><input type='email' name='email' required>
+        <label>Endereço</label><textarea name='address' required></textarea>
+        <button class='btn btn-primary' type='button' onclick='processPayment("${p.id}")'>Prosseguir pagamento</button>
+      </form>`);
+  }
+
+  function generateOrderCode(){return 'SC-'+Math.floor(Math.random()*1000000)}
+  function generateTracking(){return 'BR'+Math.floor(Math.random()*100000000)+'XP'}
+
+  function processPayment(pid){
+    const f=new FormData(document.getElementById('checkoutForm'));
+    const orderId=generateOrderCode();
+    const track=generateTracking();
+    const product=products.find(p=>p.id===pid);
+    const order={orderId,tracking:track,product:product.title,customer:{name:f.get('name'),email:f.get('email'),address:f.get('address')}};
+
+    if(emailjs_service&&emailjs_template&&emailjs_public){
+      emailjs.init(emailjs_public);
+      emailjs.send(emailjs_service,emailjs_template,{
+        user_name:order.customer.name,
+        user_email:order.customer.email,
+        user_address:order.customer.address,
+        product_name:order.product,
+        order_id:orderId,
+        tracking_code:track,
+        company_email:companyEmail
+      }).then(r=>console.log('Email enviado',r),e=>console.error(e));
+    }
+
+    showModal(`<h2>Seu pedido foi concluído ✅</h2><p>Segue com o código do pedido e o código de rastreio:</p><p><strong>Pedido:</strong> ${orderId}</p><p><strong>Rastreio:</strong> ${track}</p><button class='btn btn-secondary' onclick='closeModal()'>Fechar</button>`);
+  }
+
+</script>
+</body>
+</html>
